@@ -1,0 +1,326 @@
+﻿@model Home
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container-fluid">
+
+    <!-- Title -->
+    <h1 class="text-center my-4 mb-5"><strong>Bowling Score</strong></h1>
+
+    <!-- Players Section -->
+    <div class="row mb-5" style="font-size:xx-large">
+        <div class="col-auto mb-3">
+            <label><strong>Players:</strong></label>
+        </div>
+
+        <!-- Players list -->
+        @for (int i = 0; i< Model.Players.Count; i++)
+        {
+            <div class="col-sm-6 col-md-4 col-lg-3 mb-3 d-flex align-items-start">
+                <!-- Show players and delete on hover -->
+                <a asp-action="DeletePlayer" asp-route-home="@JsonSerializer.Serialize(Model)" asp-route-idPlayer="@i" class="mx-2 " style="width:100%;">
+                    <div class="card player-card hover-delete">
+                            <div class="card-body align-items-center text-center">
+                                <p class="card-text">@Model.Players[i]</p>
+                            </div>
+                    </div>
+                </a>
+                <!-- Edit player button -->
+                <a class="edit-player-link" href="" data-index="@i" data-oldName="@Model.Players[i]" data-bs-toggle="modal" data-bs-target="#editPlayerModal"><i class="fas fa-pencil-alt fa-2xs"></i></a>
+            </div>
+        }
+
+        <!-- Add player button -->
+        <div class="col-auto mb-3">
+            <button id="addPlayerButton" class="btn btn-purple" data-bs-toggle="modal" data-bs-target="#addPlayerModal">
+                <i class="fa-solid fa-plus"></i> <strong>Add player</strong>
+            </button>
+        </div>
+    </div>
+    <form id="startGameForm" method="post" asp-action="StartGame">
+        <input type="hidden" name="home" value="@JsonSerializer.Serialize(Model)" />
+
+        <!-- Amount of Rounds  -->
+        <div class="row" style="font-size:xx-large">
+            <div class="col-auto mb-5">
+                <label><strong>Amount of rounds:</strong></label>
+            </div>
+            <div class="col-auto mb-3">
+                <div class="input-group">
+                    <!-- Decrease the amount of rounds -->
+                    <div class="input-group-prepend">
+                        <button class="btn btn-outline-secondary" type="button" id="button-minus-rounds"><b>-</b></button>
+                    </div>
+                    <!-- Show the amount of rounds -->
+                    <input type="number" name="rounds" tabindex="-1" class="form-control btn-outline-secondary text-center input-center" id="roundsInput" value="@Model.NumberOfRounds" min="1" max="10" style="background-color:transparent;color:white;" readonly>
+                    <!-- Increase the amount of rounds -->
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="button-plus-rounds"><b>+</b></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Amount of Pins  -->
+        <div class="row" style="font-size:xx-large">
+            <div class="col-auto mb-3">
+                <label><strong>Amount of pins:</strong></label>
+            </div>
+            <div class="col-auto mb-3">
+                <div class="input-group">
+                    <!-- Decrease the amount of pins -->
+                    <div class="input-group-prepend">
+                        <button class="btn btn-outline-secondary" type="button" id="button-minus-pins"><b>-</b></button>
+                    </div>
+                    <!-- Show the amount of pins -->
+                    <input type="number" name="pins" tabindex="-1" class="form-control btn-outline-secondary text-center input-center" id="pinsInput" value="@Model.NumberOfPins" min="1" max="10" style="background-color:transparent;color:white;" readonly>
+                    <!-- Increase the amount of pins -->
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="button-plus-pins"><b>+</b></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Button  -->
+        <div class="row" style="font-size:xx-large">
+            <div class="col text-center">
+                <button type="submit" class="btn btn-purple btn-lg"><strong>START</strong></button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<!-- Modal add new player  -->
+<div class="modal fade" id="addPlayerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="custom-form-container">
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPlayerModalLabel">New Player</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+            </div>
+                <form id="addPlayerForm" method="post" asp-action="AddPlayer">
+                        <div class="modal-body">
+                                <input type="hidden" name="home" value="@JsonSerializer.Serialize(Model)" />
+                                <!-- Name of the new player -->
+                                <div class="mb-3">
+                                    <label for="playerName" class="col-form-label" style="color:black">Player Name:</label>
+                                    <input type="text" class="form-control" id="playerName" name="name" oninput="checkCharacterLimit(this)">
+                                </div>
+                                <!-- Close and Add player buttons-->
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-purple">Add Player</button>
+                                </div>
+                        </div>
+                </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal edit player  -->
+<div class="modal fade" id="editPlayerModal" tabindex="-1" >
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Header -->
+            <div class="custom-form-container">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPlayerModalLabel">Rename Player</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+            </div>
+            <form id="editPlayerForm" method="post" asp-action="EditPlayer">
+                <div class="modal-body">
+                    <input type="hidden" name="home" value="@JsonSerializer.Serialize(Model)" />
+                    <input type="hidden" id="idRename" name="idRename" />
+                    <!-- Old name of the player -->
+                    <div class="mb-3">
+                        <label for="playerName" class="col-form-label" style="color:black">Player Name:</label>
+                        <input type="text" class="form-control" id="oldPlayerName" name="name" readonly />
+                    </div>
+                    <!-- New name of the new player -->
+                    <div class="mb-3">
+                        <label for="newPlayerName" class="col-form-label" style="color:black">New Name:</label>
+                        <input type="text" class="form-control" id="newPlayerName" name="newName" oninput="checkCharacterLimit(this)">
+                    </div>
+                    <!-- Close and Rename player buttons-->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-purple">Rename</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <!-- script to limit the number of players-->
+    <script>
+
+        $(document).ready(function () {
+            $('#addPlayerModal').on('show.bs.modal', function (e) {
+                var numberofplayers = @Model.Players.Count ;
+                var maxplayers = @Model.MaxPlayers;
+                if (numberofplayers === maxplayers) {
+                    alert('The player limit has already been reached.');
+                    e.stoppropagation(); // prevent form from submitting
+                }
+            });
+        });
+    </script>
+
+    <!-- script to limit the number of characters in player names-->
+    <script>
+        function checkCharacterLimit(textbox) {
+            var maxCharacters = 12;
+            var playerName = textbox.value;
+            if (playerName.length > maxCharacters) {
+                alert('The character limit for a player name has been reached');
+                textbox.value = playerName.substring(0, maxCharacters);
+            }
+        }
+    </script>
+
+    <!-- script for choosing the amount of rounds and pins -->
+    <script>
+
+        // Decrease
+        document.getElementById('button-minus-rounds').addEventListener('click', function () {
+            var input = document.getElementById('roundsInput');
+            var currentValue = parseInt(input.value, 10);
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+            }
+        });
+
+        // Increase
+        document.getElementById('button-plus-rounds').addEventListener('click', function () {
+            var input = document.getElementById('roundsInput');
+            var currentValue = parseInt(input.value, 10);
+            if (currentValue < 10) {
+                input.value = currentValue + 1;
+            }
+        });
+
+        // Decrease
+        document.getElementById('button-minus-pins').addEventListener('click', function () {
+            var input = document.getElementById('pinsInput');
+            var currentValue = parseInt(input.value, 10);
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+            }
+        });
+
+        // Increase
+        document.getElementById('button-plus-pins').addEventListener('click', function () {
+            var input = document.getElementById('pinsInput');
+            var currentValue = parseInt(input.value, 10);
+            if (currentValue < 10) {
+                input.value = currentValue + 1;
+            }
+        });
+    </script>
+
+    <!-- script for renaming player-->
+    <script>
+        $(document).ready(function () {
+            $('.edit-player-link').click(function () {
+                var index = $(this).attr('data-index');
+                var oldname = $(this).attr('data-oldName');
+                console.log(index);
+                $('#idRename').val(index);
+                $('#oldPlayerName').val(oldname);
+            });
+        });
+
+    </script>
+
+    <!-- script for changing the button by hovering on it-->
+    <script>
+        $(document).ready(function () {
+            $('.hover-delete').hover(
+                function () {
+                    // mouseenter
+                    $(this).data('original-html', $(this).find('.card-text').html());
+                    $(this).find('.card-text').html('<i class="fa-regular fa-circle-xmark"></i>');
+                },
+                function () {
+                    // mouseleave
+                    $(this).find('.card-text').html($(this).data('original-html'));
+                }
+            );
+        });
+    </script>
+
+    <!-- script for validating the player name-->
+    <script>
+        // making sure the player name is not empty and not already in the list
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('addPlayerForm').addEventListener('submit', function (e) {
+                if (!validatePlayerName('playerName')) {
+                    e.preventDefault(); // prevent form from submitting
+                }
+            });
+
+            document.getElementById('editPlayerForm').addEventListener('submit', function (e) {
+                if (!validatePlayerName('newPlayerName')) {
+                    e.preventDefault(); // prevent form from submitting
+                }
+            });
+
+            // validate the player name by taking the input field id
+            function validatePlayerName(input) {
+
+                var playerName = document.getElementById(input).value.trim(); // trim to remove whitespace
+                if (playerName === '') {
+                    alert('The name field cannot be submitted empty.');
+                    return false;
+                }
+
+                var playerNames = [@foreach (var player in Model.Players){@Html.Raw($"'{player}',")}];
+                if (playerNames.includes(playerName)) {
+                    alert('This player name already exists.');
+                    return false;
+                }
+
+                return true;
+            }
+        });
+
+        // reset the input field when the modal is closed
+        $(document).ready(function () {
+            $('#addPlayerModal').on('hidden.bs.modal', function () {
+                $('#playerName').val('');
+            });
+
+            $('#editPlayerModal').on('hidden.bs.modal', function () {
+                $('#newPlayerName').val('');
+            });
+        });
+    </script>
+
+    <!-- script for validating the number of players-->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var startGameForm = document.getElementById('startGameForm');
+
+            startGameForm.addEventListener('submit', function (e) {
+                var numberOfPlayers = @Model.Players.Count ;
+
+                if (numberOfPlayers === 0) {
+                    alert('Please add at least one player to start the game.');
+                    e.preventDefault(); // Prevent form from submitting
+                }
+            });
+        });
+    </script>
+}

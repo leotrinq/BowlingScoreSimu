@@ -1,0 +1,39 @@
+﻿@model Leaderboard
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Leaderboard Page";
+}
+
+<div class="container mt-5">
+    <h1 class="mb-5">Leaderboard</h1>
+
+    <!-- Leaderboard -->
+    <table class="table table-sm">
+        <!-- First row with titles of columns -->
+        <thead style="color: white;">
+            <tr>
+                <th scope="col" style="width: 3%"></th>
+                <th scope="col" style="width: 50%">Player name</th>
+                <th scope="col" style="width: 50%">Score</th>
+            </tr>
+        </thead>
+        <!-- Players sorted with their score -->
+        <tbody style="color: white;">
+            @for (int i = 1; i <= Model.PlayerLeaderboard.Length; i++)
+            {
+                <tr>
+                    <th scope="row" class="rounded p-2 bg-secondary" style="text-align: center;background-color:#585858;opacity:80%">@i</th>
+                    <td class="p-2">@Model.PlayerLeaderboard[i-1].Name</td>
+                    <td class="p-2">@Model.PlayerLeaderboard[i-1].Score</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Restart Button -->
+    <div class="row" style="font-size:xx-large">
+        <div class="col text-center">
+            <a asp-action="Restart" class="btn btn-purple btn-lg"><strong>Restart a game</strong></a>
+        </div>
+    </div>
+</div>
