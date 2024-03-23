@@ -1,0 +1,13 @@
+BRAINSTORMING 
+ Manager : nbre de joueur -- nbre de round -- 
+ classe joueur : Nom -- nbre de round restante - score actuel - rang/nbre de joueur -- nbre de lancé restant (0/1/2) -- tab2d<> -- nb de quille restante 
+
+-> Strike : X -> 10 pt + bonus ->  Double les 2 prochain lancé 
+-> Spare : / ->10pt +  Double le prochain lancé 
+
+-> Rien : nb de quille tombé
+
+
+TEST: 
+- Constructeur GameManager: 
+Entrée: nombre de joueurs et nombre de round : par défaut round = 10
